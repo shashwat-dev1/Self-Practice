@@ -60,9 +60,9 @@ print(s.swapcase())
 #lstrip() : Removes whitespaces from leading(left)
 #rstrip() : Removes whitespaces from leading(right)
 x="    Hello   "
-print(s.strip())
-print(s.lstrip())
-print(s.rstrip())
+print(x.strip())
+print(x.lstrip())
+print(x.rstrip())
 
 
 # Searching
@@ -153,3 +153,139 @@ s.endswith("o") # Checks if string ends with given char
 name = "Shashwat"
 age = 21
 print(f"My name is {name} and I am {age}") #The f before the string tells Python evaluate expressions inside {}
+
+# format()
+"My name is {}".format(name) # .format(name) → inserts value into placeholder
+# Multiple values
+"My name is {} and I am {}".format(name, age)
+#Indexed placeholders
+"{0} is {1} years old".format(name, age)
+#Named placeholder
+"My name is {n} and I am {a}".format(n=name, a=age)
+#format control 
+pi = 3.14159
+"Value: {:.2f}".format(pi) #this will convert it into round off till 2 decimal places by :.2f where f for float and .2 is defining how many decimal places
+
+# Traditional style formatting
+print("%s is %d" % (name, age))
+
+
+#Some adv ops
+
+#Reversing string (Using step we already know ::-1)
+s[::-1]
+
+#Palindrome check (Palindrome is string from forward and backward is same like racecar)
+s= "racecar"
+s == s[::-1]
+
+#Removing duplicate as we already know set have only unique values so we'll use set for this
+"".join(set(s))
+
+# Sorting string using sorted() function
+"".join(sorted(s))
+
+# Counting frequency using counter method from collections module
+from collections import Counter
+Counter(s)
+
+#Type casting 
+str(123)
+int("123")
+list("abc")     # ['a','b','c']
+
+#Reverse words while converting it into list
+print("hello world".split()[::-1]) # Output as ['world', 'hello']
+
+#Count vowels
+sum(1 for ch in s if ch in "aeiou") 
+#Counts the number of vowels (a, e, i, o, u) in string s
+#For every vowel found it generates 1
+
+#Checking anagram
+## Anagram : An anagram is when two strings contain the same characters with the same frequency, but possibly in a different order.
+# Eg. "listen"  ↔ "silent" Correct
+# Eg. "hello" ↔ "world"   (different letters)
+
+s1 = "listen"
+s2 = "silent"
+sorted(s1) == sorted(s2) #This is for checking anagram
+print(sorted(s1))  # ['e','i','l','n','s','t']
+print(sorted(s2))  # ['e','i','l','n','s','t']
+print(sorted(s1) == sorted(s2))  # True
+
+# Can also use Counter()
+from collections import Counter
+Counter(s1) == Counter(s2)
+# This will also check anagram with lesser time complexity 
+# Time complexity : Counter O(n) vs sorting O(n log n)
+
+
+# First non-repeating char
+print(next(ch for ch in s if s.count(ch) == 1)) ## get the first character in s that appears only once and print it
+#next() is a control operator for iterators.
+# It retrieves the next item from an iterator.
+
+## Encoding / Decoding
+s = "hello"
+
+encoded = s.encode('utf-8')
+print(encoded)
+# b'hello'
+
+decoded = encoded.decode('utf-8')
+print(decoded)
+# 'hello'
+
+# Escape sequence
+print("Hello\nWorld")    # newline
+print("Hello\tWorld")    # tab
+print("He said \"Hi\"")  # embedded quotes
+print("Backslash \\")
+
+# Raw Strings
+path = r"C:\Users\Shashwat\Desktop" #Prevents escape misinterpretation (\n, \t) converts into raw string
+regex = r"\d+\.\d+" #Decimal numbers (numbers with a dot)
+# \d+   → one or more digits
+# \.    → literal dot (.)
+# \d+   → one or more digits
+
+# String Comparison (Lexicographical Engine)
+# Character-by-character comparison
+# Based on Unicode/ASCII values
+"apple" < "banana"   # True
+"abc" < "abd"        # True
+"A" < "a"            # True (ASCII-based)
+
+
+# Some built in func
+s = "python"
+
+len(s)   # 6 Gives length of string
+min(s)   # 'h' gives minimum char based on ascii value
+max(s)   # 'y' gives maximum char based on ascii value
+
+# Character Encoding
+#ord = ordinal (Converts character → integer (Unicode value))
+# Refers to the numeric position/value of a character
+# In Python → based on Unicode code point
+ord('A')   # 65
+# eg. ord('₹')   # 8377
+
+# chr = character converts unicode to char
+chr(65)    # 'A'
+
+
+#Advanced Alignment & Formatting
+s = "hi"
+#width = total length after padding here 10 is width arg
+s.center(10)   # '    hi    ' Places text in the middle Spaces added on both sides as total length is 10 chars
+s.ljust(10)    # 'hi        ' Aligns text to the left Spaces added on the right
+s.rjust(10)    # '        hi' Aligns text to the right Spaces added on the left
+
+#Zero Padding
+"42".zfill(5)   # '00042' Fills zero to get width size 
+
+# partition() : Splits the string into exactly 3 parts based on the first occurrence of separator
+s = "hello world"
+s.partition(" ") # output as ('hello', ' ', 'world')
