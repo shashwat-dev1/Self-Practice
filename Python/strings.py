@@ -289,3 +289,293 @@ s.rjust(10)    # '        hi' Aligns text to the right Spaces added on the left
 # partition() : Splits the string into exactly 3 parts based on the first occurrence of separator
 s = "hello world"
 s.partition(" ") # output as ('hello', ' ', 'world')
+
+## Slicing Edge Cases
+
+s = "python"
+
+# Negative start and stop together
+print(s[-3:-1])   # 'ho'  -> from 3rd last to 2nd last (stop is n-1 so -1 excluded)
+
+# Negative step with positive bounds (reverses within range)
+print(s[4:1:-1])  # 'noh' -> start at index 4 ('n'), move backward to index 2
+
+# Out of bounds slicing does NOT error (just clips to available chars)
+print(s[0:100])   # 'python' (no error, stops at end)
+# But indexing out of bounds DOES error
+# print(s[100])   # IndexError: string index out of range
+
+# Golden rule : Slicing is forgiving, indexing is strict
+
+
+
+## More Splitting / Searching Methods
+
+# splitlines() : Splits on line boundaries (\n, \r, \r\n) — better than split("\n")
+text = "line1\nline2\nline3"
+print(text.splitlines())        # ['line1', 'line2', 'line3']
+
+# rsplit() : Splits from the RIGHT, can limit splits with maxsplit
+path = "a/b/c/d"
+print(path.rsplit("/", 1))      # ['a/b/c', 'd']  -> only 1 split from right
+
+# rfind() / rindex() : Search from the RIGHT (returns index from left still)
+url = "https://site.com/page.html"
+print(url.rfind("."))           # index of LAST dot
+# rindex() same but raises ValueError if not found (rfind returns -1)
+
+# rpartition() : partition from the RIGHT (uses LAST occurrence of separator)
+email = "user.name@domain.com"
+print(email.rpartition("."))    # ('user.name@domain', '.', 'com')
+
+
+
+## casefold() — stronger than lower()
+
+# casefold() : Aggressive lowercase designed for Unicode matching
+# Better than lower() when comparing strings across languages
+ss = "Straße"   # German sharp s
+print(ss.lower())       # 'straße'   (still has ß)
+print(ss.casefold())    # 'strasse'  (ß -> ss, normalized)
+# So : casefold() == True for cross-language string comparison, lower() may miss
+"STRASSE".casefold() == "Straße".casefold()   # True
+"STRASSE".lower()      == "Straße".lower()     # False (ß != ss in lower)
+
+
+
+## removeprefix() / removesuffix() (Python 3.9+)
+
+# Safe, fixed-string prefix/suffix removal — DOES NOT strip chars like lstrip does
+filename = "report_final.txt"
+print(filename.removeprefix("report_"))   # 'final.txt'
+print(filename.removesuffix(".txt"))       # 'report_final'
+
+# IMPORTANT difference from lstrip() :
+# lstrip removes ALL chars in the set, not a prefix string
+"hello".lstrip("he")      # 'llo'  (strips h AND e, not the word "he")
+"hello".removeprefix("he") # 'llo' (removes only the literal prefix "he")
+# Use removeprefix/removesuffix when you mean "drop this exact prefix"
+
+
+
+## expandtabs()
+
+# expandtabs(tabsize=8) : Converts \t to spaces
+code = "a\tb\tc"
+print(code.expandtabs(4))    # 'a   b   c' (each tab -> 4 spaces)
+
+
+
+## maketrans() / translate() — character-level translation
+
+# maketrans() : Builds a translation table (mapping chars -> chars / None for delete)
+# translate() : Applies that table to the string
+table = str.maketrans("aeiou", "12345")     # a->1, e->2, i->3, o->4, u->5
+print("hello world".translate(table))       # 'h2ll4 w4rld'
+
+# Also delete characters : 3rd arg maps chars to None (remove them)
+table2 = str.maketrans("", "", "aeiou")     # delete all vowels
+print("hello world".translate(table2))      # 'hll wrld'
+
+
+
+## The rest of the is* family
+
+"123".isdigit()       # True  -> 0-9 only
+"123.45".isdigit()    # False (. not a digit)
+"123.45".isdecimal()  # False -> decimal must be all 0-9 chars
+"½".isnumeric()       # True  -> numeric includes fractions, superscripts (broadest)
+# Broadness : isdecimal < isdigit < isnumeric
+
+"my_var".isidentifier()    # True  -> valid Python variable name
+"my var".isidentifier()    # False (space)
+"Hello World".istitle()    # True  -> every word starts uppercase
+"Hello world".istitle()    # False
+"abc".isprintable()        # True
+"abc\n".isprintable()      # False (\n is non-printable)
+
+
+
+## format_map() — format from a dict without copying
+
+data = {"name": "Shashwat", "age": 21}
+print("My name is {name}".format_map(data))   # 'My name is Shashwat'
+# Difference from .format(**data) : format_map does NOT unpack the dict (no copy)
+# Useful with dict subclasses like defaultdict that generate keys on the fly
+
+
+
+## F-string advanced features
+
+name = "Shashwat"
+age = 21
+pi = 3.14159
+
+# 1. Expression evaluation inside {}
+print(f"Sum = {2 + 3}")                  # 'Sum = 5'
+
+# 2. Inline conditional (ternary)
+print(f"{'Mr' if age >= 18 else 'Kid'}")  # 'Mr'
+
+# 3. Debug format f"{var=}" (Python 3.8+) — prints name=value
+print(f"{name=}")                        # "name='Shashwat'"
+print(f"{age=}")                         # "age=21"
+
+# 4. Format specifiers (after the colon)
+print(f"{42:>10}")        # '        42'  -> right-align, width 10
+print(f"{42:<10}")        # '42        '  -> left-align
+print(f"{42:^10}")        # '    42    '  -> center
+print(f"{1234567:,.2f}")  # '1,234,567.00' -> comma thousands + 2 decimals
+print(f"{255:x}")         # 'ff'   -> hex
+print(f"{255:b}")         # '11111111' -> binary
+print(f"{255:o}")         # '377'  -> octal
+print(f"{0.15:.1%}")      # '15.0%' -> percentage
+print(f"{1234567:.2e}")   # '1.23e+06' -> scientific
+
+# 5. Nested f-strings
+width = 10
+print(f"{f'{name:^{width}}'}")   # centers 'Shashwat' in width 10
+
+
+
+## Interning — why "is" can be True for strings
+
+# Interning : CPython caches certain strings (short, identifier-like) so two
+# literals with the same value point to the SAME object in memory
+a = "hello"
+b = "hello"
+print(a is b)   # True  -> interned, same object (same memory id)
+
+# But strings with spaces / built at runtime are usually NOT interned
+c = "hello world"
+d = "hello world"
+print(c is d)   # False (usually) -> different objects, same value
+
+# Manual interning
+import sys
+e = sys.intern("hello world")
+f = sys.intern("hello world")
+print(e is f)   # True -> now interned, same object
+
+# is vs == :
+# == compares VALUE (the characters)
+# is compares IDENTITY (same object in memory)
+# Rule : use == for string equality, NEVER rely on is unless you explicitly interned
+
+
+
+## String vs bytes vs bytearray
+
+# str    : human text, Unicode, IMMUTABLE
+# bytes  : raw byte data, IMMUTABLE (b'...' literal)
+# bytearray : mutable version of bytes (can modify elements)
+
+text = "hi"
+b = text.encode("utf-8")      # str  -> bytes
+print(b)                      # b'hi'
+print(b.decode("utf-8"))      # bytes -> str  -> 'hi'
+
+ba = bytearray(b"hello")
+ba[0] = 74                    # 74 = 'J' (can mutate! bytes can't)
+print(ba)                     # bytearray(b'Jello')
+
+
+
+## Encoding error handlers
+
+# When encoding to a charset that can't represent a char, pick a strategy:
+s = "café"
+print(s.encode("ascii", errors="ignore"))    # b'caf'  -> drop bad char
+print(s.encode("ascii", errors="replace"))   # b'caf?' -> replace with ?
+# errors="strict" (default) -> raises UnicodeEncodeError
+
+
+
+## Regular Expressions (re module) — pattern matching on strings
+
+import re
+
+text = "Call 555-1234 or 999-8765"
+
+# re.findall() : returns ALL matches as a list
+print(re.findall(r"\d{3}-\d{4}", text))  # ['555-1234', '999-8765']
+# \d{3} -> exactly 3 digits, - literal, \d{4} -> exactly 4 digits
+
+# re.search() : first match anywhere (returns Match object or None)
+m = re.search(r"(\d{3})-(\d{4})", text)
+print(m.group(0))   # '555-1234' (whole match)
+print(m.group(1))    # '555' (1st capture group)
+
+# re.match() : match ONLY at the start of string
+# re.sub() : replace matches
+print(re.sub(r"\d", "X", text))   # 'Call XXX-XXXX or XXX-XXXX'
+
+# re.split() : split by pattern
+print(re.split(r"[\s,]+", "a, b,c  d"))  # ['a', 'b', 'c', 'd']
+
+# re.compile() : pre-compile a pattern for reuse (faster in loops)
+phone = re.compile(r"\d{3}-\d{4}")
+print(phone.findall(text))
+
+# Flags : re.IGNORECASE (case-insensitive), re.DOTALL (. matches \n)
+
+
+
+## string.Template — simple $ substitution
+
+from string import Template
+t = Template("Hello $name, you are $age")
+print(t.substitute(name="Shashwat", age=21))   # 'Hello Shashwat, you are 21'
+# safer when user supplies the string (no format() code injection)
+# safe_substitute() won't error if a key is missing
+print(t.safe_substitute(name="Shashwat"))       # 'Hello Shashwat, you are $age'
+
+
+
+## textwrap module — wrap / shorten / indent / dedent
+
+import textwrap
+para = "This is a long sentence that we want to wrap nicely."
+
+print(textwrap.wrap(para, width=20))   # list of lines each <=20 chars
+print(textwrap.fill(para, width=20))    # joined into one wrapped string
+print(textwrap.shorten(para, width=30)) # 'This is a long [...]'
+textwrap.indent("line1\nline2", "  ")   # adds '  ' prefix to each line
+textwrap.dedent("  a\n  b")             # removes common leading whitespace
+
+
+
+## difflib — fuzzy match / similarity between strings
+
+import difflib
+# ratio() : similarity score 0.0 (no overlap) to 1.0 (identical)
+print(difflib.SequenceMatcher(None, "apple", "snapple").ratio())  # ~0.9
+# get_close_matches() : find closest matches from a list
+print(difflib.get_close_matches("appel", ["apple", "banana", "grape"]))
+# ['apple']
+
+
+
+## Implicit string concatenation
+
+# Two string literals next to each other are joined automatically (no + needed)
+msg = "Hello " "World"
+print(msg)   # 'Hello World'
+# Useful for long strings across lines:
+long = ("This is a very long string "
+        "split across multiple lines "
+        "but it becomes one string.")
+
+
+
+## List multiplication gotcha (with strings inside)
+
+# Strings are immutable so this is safe:
+print(["hi"] * 3)   # ['hi', 'hi', 'hi']  (3 independent string refs, fine)
+
+# But for nested MUTABLE objects it shares references (classic bug):
+matrix = [[""] * 3] * 2
+matrix[0][0] = "X"
+print(matrix)   # [['X', '', ''], ['X', '', '']]  -> both rows changed!
+# Fix : use comprehension so each row is a fresh object
+matrix = [[""] * 3 for _ in range(2)]
